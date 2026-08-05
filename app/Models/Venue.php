@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Shared\Infrastructure\TenantScoped;
+use App\Modules\Shared\Infrastructure\Auditable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Venue extends Model
 {
-    use HasFactory;
+    use HasFactory, TenantScoped, Auditable, SoftDeletes;
 
     protected $fillable = [
         'organization_id',

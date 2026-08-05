@@ -14,22 +14,42 @@ class ValidateTicketUseCase @Inject constructor(
         object ValidOffline : ValidationResult()
         object ValidOnline : ValidationResult()
         object Invalid : ValidationResult()
+        object Duplicate : ValidationResult()
+        object Expired : ValidationResult()
         object NetworkError : ValidationResult()
     }
 
     suspend fun execute(payload: String): ValidationResult = withContext(Dispatchers.IO) {
-        // 1. Offline Crypto-Validation
+        // 1. Duplicate Detection (Fast check in Room)
+        val alreadyScanned = ticketDao.getTicketById(payload) != null
+        if (alreadyScanned) {
+            return@withContext ValidationResult.Duplicate
+        }
+
+        // 2. Offline Crypto-Validation (Enterprise Engine)
         val isOfflineValid = securityRepository.verifySignature(payload)
 
         if (isOfflineValid) {
-            // Save to local DB for later sync
-            val ticketId = payload.split("|").firstOrNull() ?: payload
+            // Enterprise logic: Validate Payload constraints (EventID, Timestamp)
+            // format: eventId|ticketId|timestamp|signature
+            val parts = payload.split("|")
+            if (parts.size >= 3) {
+                val timestamp = parts[2].toLongOrNull() ?: 0
+                val currentTime = System.currentTimeMillis()
+
+                // Anti-fraud: Dynamic QR rotation check (e.g., 5 min window for offline)
+                if (currentTime - timestamp > 300_000) {
+                    return@withContext ValidationResult.Expired
+                }
+            }
+
+            // Save to local DB for sync
             ticketDao.insertTicket(
                 Ticket(
-                    id = ticketId,
-                    eventName = "Summer Festival 2026",
+                    id = payload,
+                    eventName = "Secure Event",
                     scannedAt = System.currentTimeMillis(),
-                    status = "OFFLINE_VALIDATED"
+                    status = "VALIDATED_OFFLINE"
                 )
             )
             return@withContext ValidationResult.ValidOffline

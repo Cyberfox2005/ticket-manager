@@ -59,13 +59,18 @@ class BookingService
             }
 
             // 4. Create DB Reservation (Timer Record)
-            return Reservation::create([
+            $reservation = Reservation::create([
                 'user_id' => $userId,
                 'event_id' => $eventId,
                 'seat_id' => $seatId,
                 'expires_at' => Carbon::now()->addMinutes(10),
                 'status' => 'pending'
             ]);
+
+            // Dispatch Event
+            \App\Modules\Shared\Events\SeatLocked::dispatch($reservation);
+
+            return $reservation;
         });
     }
 

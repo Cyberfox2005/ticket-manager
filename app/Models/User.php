@@ -49,6 +49,18 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasMany(Ticket::class);
     }
 
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
+            $query->where('slug', $permission);
+        })->exists();
+    }
+
     /**
      * Get the attributes that should be cast.
      *

@@ -93,9 +93,15 @@ class TicketService
             throw new \Exception('Event has not started yet', 422);
         }
 
-        return $this->ticketRepository->update($ticket->id, [
+        $updated = $this->ticketRepository->update($ticket->id, [
             'validated_at' => Carbon::now(),
             'validated_by' => $validator->id,
         ]);
+
+        if ($updated) {
+            \App\Modules\Shared\Events\TicketValidated::dispatch($ticket->fresh());
+        }
+
+        return $updated;
     }
 }

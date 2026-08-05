@@ -11,7 +11,8 @@ trait ApiResponse
         return response()->json([
             'status' => 'Success',
             'message' => $message,
-            'data' => $data
+            'data' => $data,
+            'timestamp' => now()->toIso8601String()
         ], $code);
     }
 
@@ -20,7 +21,8 @@ trait ApiResponse
         return response()->json([
             'status' => 'Error',
             'message' => $message,
-            'data' => $data
+            'data' => $data,
+            'timestamp' => now()->toIso8601String()
         ], $code);
     }
 }

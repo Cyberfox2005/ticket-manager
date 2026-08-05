@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Modules\Shared\Infrastructure\Auditable;
+use App\Modules\Shared\Infrastructure\TenantScoped;
 
 class Event extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, Auditable, TenantScoped;
 
     protected $fillable = [
         'organization_id',

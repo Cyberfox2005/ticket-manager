@@ -1,5 +1,6 @@
 import { AppLayout } from '@/layouts/app-layout';
 import { GlassCard } from '@/components/premium/glass-card';
+import { CommandK } from '@/components/premium/command-k';
 import { Head } from '@inertiajs/react';
 import {
     Ticket,
@@ -11,29 +12,40 @@ import {
     ArrowDownRight,
     Search,
     Filter,
-    Plus
+    Plus,
+    ShieldCheck,
+    ShieldAlert
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DataTable } from '@/components/premium/data-table';
 
 const stats = [
     { name: 'Total Revenue', value: '$128,430', change: '+12.5%', trending: 'up', icon: DollarSign },
-    { name: 'Tickets Sold', value: '14,230', change: '+18.2%', trending: 'up', icon: Ticket },
+    { name: 'Security Health', value: '98%', change: 'Stable', trending: 'up', icon: ShieldCheck },
     { name: 'Active Events', value: '24', change: '-2.4%', trending: 'down', icon: Calendar },
     { name: 'Unique Customers', value: '8,432', change: '+5.4%', trending: 'up', icon: Users },
 ];
 
+const columns = [
+    { header: 'Order ID', accessor: 'id' },
+    { header: 'Customer', accessor: 'customer' },
+    { header: 'Event', accessor: 'event' },
+    { header: 'Amount', accessor: 'amount' },
+    { header: 'Status', accessor: 'status' },
+];
+
 const recentOrders = [
-    { id: 'ORD-7234', customer: 'Alex Rivera', event: 'Summer Music Festival', amount: '$150.00', status: 'Paid', date: '2 mins ago' },
-    { id: 'ORD-7235', customer: 'Sarah Chen', event: 'Tech Conference 2026', amount: '$450.00', status: 'Paid', date: '15 mins ago' },
-    { id: 'ORD-7236', customer: 'Michael Ross', event: 'Broadway: Lion King', amount: '$85.00', status: 'Pending', date: '45 mins ago' },
-    { id: 'ORD-7237', customer: 'Emma Wilson', event: 'Summer Music Festival', amount: '$300.00', status: 'Paid', date: '1 hour ago' },
+    { id: 'ORD-7234', customer: 'Alex Rivera', event: 'Summer Music Festival', amount: '$150.00', status: 'Paid' },
+    { id: 'ORD-7235', customer: 'Sarah Chen', event: 'Tech Conference 2026', amount: '$450.00', status: 'Paid' },
+    { id: 'ORD-7236', customer: 'Michael Ross', event: 'Broadway: Lion King', amount: '$85.00', status: 'Pending' },
 ];
 
 export default function AdminDashboard() {
     return (
         <AppLayout>
             <Head title="TicketFlow Dashboard" />
+            <CommandK />
 
             <div className="flex flex-col gap-8 p-6 lg:p-10">
                 {/* Header */}
@@ -135,51 +147,46 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Recent Orders Table */}
-                <GlassCard className="overflow-hidden p-0">
-                    <div className="flex items-center justify-between border-b border-white/10 p-6">
-                        <h3 className="text-lg font-semibold">Recent Ticket Orders</h3>
-                        <div className="relative w-64">
-                            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input placeholder="Search orders..." className="bg-white/5 pl-9 border-white/10" />
+                <DataTable
+                    title="Real-Time Order Stream"
+                    columns={columns}
+                    data={recentOrders}
+                />
+
+                {/* Recent Activity */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <GlassCard>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold flex items-center gap-2"><Activity className="size-5 text-primary" /> System Activity</h3>
+                            <Button variant="link" className="text-xs">View Audit Logs</Button>
                         </div>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-white/5 text-xs uppercase tracking-wider text-muted-foreground">
-                                <tr>
-                                    <th className="px-6 py-4 font-medium">Order ID</th>
-                                    <th className="px-6 py-4 font-medium">Customer</th>
-                                    <th className="px-6 py-4 font-medium">Event</th>
-                                    <th className="px-6 py-4 font-medium">Amount</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {recentOrders.map((order) => (
-                                    <tr key={order.id} className="transition-colors hover:bg-white/5">
-                                        <td className="px-6 py-4 text-sm font-medium text-foreground">{order.id}</td>
-                                        <td className="px-6 py-4 text-sm text-muted-foreground">{order.customer}</td>
-                                        <td className="px-6 py-4 text-sm text-muted-foreground">{order.event}</td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-foreground">{order.amount}</td>
-                                        <td className="px-6 py-4 text-sm">
-                                            <span className={cn(
-                                                "rounded-full px-2 py-1 text-xs font-medium",
-                                                order.status === 'Paid' ? "bg-emerald-500/10 text-emerald-500" : "bg-orange-500/10 text-orange-500"
-                                            )}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-muted-foreground">{order.date}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className="border-t border-white/10 p-4 text-center">
-                        <Button variant="link" className="text-sm text-primary hover:text-primary/80">View All Orders</Button>
-                    </div>
-                </GlassCard>
+                        <div className="flex flex-col gap-6">
+                            {[
+                                { action: 'Admin refunded order #7234', time: '2 mins ago', icon: DollarSign, color: 'text-rose-500' },
+                                { action: 'Gate 4: High traffic detected', time: '15 mins ago', icon: ShieldAlert, color: 'text-orange-500' },
+                                { action: 'Event "Summer Festival" published', time: '45 mins ago', icon: Calendar, color: 'text-emerald-500' },
+                                { action: 'New organization onboarded: TechCorp', time: '2 hours ago', icon: Users, color: 'text-blue-500' },
+                            ].map((act, i) => (
+                                <div key={i} className="flex gap-4 group">
+                                    <div className={cn("mt-1 rounded-full bg-white/5 p-2 transition-colors group-hover:bg-white/10", act.color)}>
+                                        <act.icon className="size-4" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="text-sm font-medium text-foreground">{act.action}</p>
+                                        <p className="text-xs text-muted-foreground">{act.time}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard>
+                        <h3 className="mb-6 text-lg font-semibold flex items-center gap-2"><TrendingUp className="size-5 text-primary" /> Growth Projection</h3>
+                        <div className="flex h-48 items-center justify-center border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                            <p className="text-sm text-muted-foreground italic">Interactive Projection Chart Placeholder</p>
+                        </div>
+                    </GlassCard>
+                </div>
             </div>
         </AppLayout>
     );
