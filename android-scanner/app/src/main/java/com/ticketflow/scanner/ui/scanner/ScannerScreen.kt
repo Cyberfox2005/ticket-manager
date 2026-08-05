@@ -36,17 +36,18 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 enum class ScanStatus {
     IDLE, VALIDATING, SUCCESS, ERROR, ALREADY_USED
 }
 
 @Composable
-fun ScannerScreen() {
+fun ScannerScreen(viewModel: ScannerViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember { mutableStateOf(false) }
-    var status by remember { mutableStateOf(ScanStatus.IDLE) }
-    var lastScannedTicket by remember { mutableStateOf<String?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
     var attendanceCount by remember { mutableStateOf(142) }
 
     val launcher = rememberLauncherForActivityResult(
@@ -72,18 +73,7 @@ fun ScannerScreen() {
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize().background(Color.Black)) {
             if (hasCameraPermission) {
                 CameraPreview(onBarcodeScanned = { value ->
-                    if (status == ScanStatus.IDLE) {
-                        lastScannedTicket = value
-                        status = ScanStatus.VALIDATING
-                        // Simulate API call
-                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                            kotlinx.coroutines.delay(1000)
-                            status = if (value.contains("invalid")) ScanStatus.ERROR else ScanStatus.SUCCESS
-                            if (status == ScanStatus.SUCCESS) attendanceCount++
-                            kotlinx.coroutines.delay(2000)
-                            status = ScanStatus.IDLE
-                        }
-                    }
+                    viewModel.scanBarcode(value)
                 })
             }
 
@@ -97,13 +87,29 @@ fun ScannerScreen() {
                 Box(
                     modifier = Modifier
                         .size(280.dp)
-                        .border(4.dp, if (status == ScanStatus.IDLE) Color.White.copy(alpha = 0.5f) else Color.Transparent, RoundedCornerShape(24.dp))
+                        .border(4.dp, if (uiState is ScannerUiState.Idle) Color.White.copy(alpha = 0.5f) else Color.Transparent, RoundedCornerShape(24.dp))
                 )
             }
 
-            // Status Indicator Bottom Sheet style
-            if (status != ScanStatus.IDLE) {
-                StatusIndicator(status, lastScannedTicket)
+            // Status Indicator
+            when (val state = uiState) {
+                is ScannerUiState.Validating -> StatusIndicator(ScanStatus.VALIDATING, state.ticketId)
+                is ScannerUiState.Success -> {
+                    StatusIndicator(ScanStatus.SUCCESS, state.ticketId, state.isOffline)
+                    LaunchedEffect(state) {
+                        attendanceCount++
+                        kotlinx.coroutines.delay(2000)
+                        viewModel.resetStatus()
+                    }
+                }
+                is ScannerUiState.Error -> {
+                    StatusIndicator(ScanStatus.ERROR, state.message)
+                    LaunchedEffect(state) {
+                        kotlinx.coroutines.delay(2000)
+                        viewModel.resetStatus()
+                    }
+                }
+                ScannerUiState.Idle -> {}
             }
 
             // Attendance Counter Overlay
@@ -170,7 +176,7 @@ fun CameraPreview(onBarcodeScanned: (String) -> Unit) {
 }
 
 @Composable
-fun StatusIndicator(status: ScanStatus, ticketId: String?) {
+fun StatusIndicator(status: ScanStatus, text: String?, isOffline: Boolean = false) {
     val backgroundColor = when (status) {
         ScanStatus.SUCCESS -> Color(0xFF2E7D32)
         ScanStatus.ERROR -> Color(0xFFC62828)
@@ -197,17 +203,17 @@ fun StatusIndicator(status: ScanStatus, ticketId: String?) {
             Text(
                 text = when (status) {
                     ScanStatus.VALIDATING -> "Validating..."
-                    ScanStatus.SUCCESS -> "Access Granted"
+                    ScanStatus.SUCCESS -> if (isOffline) "Access Granted (Offline)" else "Access Granted"
                     ScanStatus.ALREADY_USED -> "Already Validated"
-                    ScanStatus.ERROR -> "Invalid Ticket"
+                    ScanStatus.ERROR -> text ?: "Invalid Ticket"
                     else -> ""
                 },
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            if (ticketId != null) {
-                Text(ticketId, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyLarge)
+            if (status != ScanStatus.ERROR && text != null) {
+                Text(text, color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyLarge)
             }
         }
     }

@@ -78,7 +78,3 @@ fun TicketFlowApp() {
     }
 }
 
-@Composable
-fun HomeScreen() {
-    Text(text = "Welcome to TicketFlow Customer App!")
-}

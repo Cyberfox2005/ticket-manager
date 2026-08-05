@@ -21,25 +21,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
-data class Event(
-    val id: String,
-    val title: String,
-    val date: String,
-    val location: String,
-    val price: String,
-    val imageUrl: String,
-    val category: String
-)
 
-val sampleEvents = listOf(
-    Event("1", "Summer Music Festival", "Aug 15, 2026", "Central Park, NY", "$45", "https://images.unsplash.com/photo-1459749411177-042180ceea72?q=80&w=1000", "Music"),
-    Event("2", "Tech Conference 2026", "Sep 10, 2026", "Convention Center, SF", "$299", "https://images.unsplash.com/photo-1540575861501-7ad0582371f3?q=80&w=1000", "Tech"),
-    Event("3", "Broadway: The Lion King", "Oct 05, 2026", "Minskoff Theatre, NY", "$85", "https://images.unsplash.com/photo-1503095396549-807039a3068e?q=80&w=1000", "Theater"),
-)
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ticketflow.customer.domain.model.Event
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val events by viewModel.events.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -106,7 +100,7 @@ fun HomeScreen() {
                     contentPadding = PaddingValues(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(sampleEvents) { event ->
+                    items(events) { event ->
                         FeaturedEventCard(event)
                     }
                 }
@@ -122,7 +116,7 @@ fun HomeScreen() {
                 )
             }
 
-            items(sampleEvents) { event ->
+            items(events) { event ->
                 EventListItem(event, modifier = Modifier.padding(horizontal = 20.dp))
             }
         }

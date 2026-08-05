@@ -10,5 +10,10 @@ data class Ticket(
     @PrimaryKey val id: String,
     val eventName: String,
     val scannedAt: Long,
-    val status: String
+    val status: String,
+    val syncStatus: SyncStatus = SyncStatus.PENDING
 )
+
+enum class SyncStatus {
+    PENDING, SYNCED, FAILED
+}

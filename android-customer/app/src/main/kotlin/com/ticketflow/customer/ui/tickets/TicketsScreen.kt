@@ -17,23 +17,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
-data class UserTicket(
-    val id: String,
-    val eventTitle: String,
-    val eventDate: String,
-    val venue: String,
-    val seat: String,
-    val qrCodeUrl: String, // Mock QR code generator URL
-    val eventImageUrl: String
-)
 
-val myTickets = listOf(
-    UserTicket("T-123", "Summer Music Festival", "Aug 15, 2026", "Central Park, NY", "Section A, Row 5", "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=T-123-VALID", "https://images.unsplash.com/photo-1459749411177-042180ceea72?q=80&w=1000"),
-    UserTicket("T-456", "Tech Conference 2026", "Sep 10, 2026", "Convention Center, SF", "General Admission", "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=T-456-VALID", "https://images.unsplash.com/photo-1540575861501-7ad0582371f3?q=80&w=1000")
-)
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ticketflow.customer.domain.model.UserTicket
 
 @Composable
-fun TicketsScreen() {
+fun TicketsScreen(
+    viewModel: TicketsViewModel = hiltViewModel()
+) {
+    val tickets by viewModel.tickets.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +43,7 @@ fun TicketsScreen() {
         )
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            items(myTickets) { ticket ->
+            items(tickets) { ticket ->
                 TicketCard(ticket)
             }
         }
