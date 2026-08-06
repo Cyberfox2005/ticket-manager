@@ -23,6 +23,10 @@ class Order extends Model
         'status',
         'payment_provider',
         'payment_id',
+        'billing_details',
+        'organization_id',
+        'created_by',
+        'updated_by',
     ];
 
     public function user(): BelongsTo

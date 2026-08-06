@@ -4,9 +4,13 @@ namespace App\Modules\Booking\Services;
 
 use App\Models\Reservation;
 use App\Models\Seat;
+use App\Models\TicketType;
+use App\Models\User;
 use App\Modules\Booking\Services\LockingService;
 use App\Modules\Pricing\Services\PricingCalculator;
 use App\Modules\Pricing\Services\Adjusters\EarlyBirdAdjuster;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
@@ -19,11 +23,16 @@ class BookingService
     }
 
     /**
-     * Get a detailed price quote for a seat
+     * Get a detailed price quote for a seat.
      */
-    public function getQuote(int $eventId, int $seatId, ?User $user)
+    public function getQuote(int $eventId, int $seatId, ?User $user): array
     {
-        $ticketType = \App\Models\TicketType::where('event_id', $eventId)->first(); // Simple heuristic for now
+        $ticketType = TicketType::where('event_id', $eventId)->first();
+
+        if (! $ticketType) {
+            throw new \Exception('No ticket type found for this event', 422);
+        }
+
         return $this->pricingCalculator->calculate($ticketType, $user);
     }
 

@@ -34,14 +34,15 @@ class PricingCalculator
             }
         }
 
-        // Final Taxes & Fees (Simplified for this phase)
-        $serviceFee = 2.50; // Example flat fee
+        // Final Taxes & Fees
+        $serviceFee = (float) config('ticketflow.pricing.service_fee', 2.50);
+        $currency   = config('ticketflow.pricing.currency', 'USD');
         $breakdown[] = ['label' => 'Service Fee', 'amount' => $serviceFee];
         $total = $currentPrice + $serviceFee;
 
         return [
-            'total' => round($total, 2),
-            'currency' => 'USD',
+            'total'     => round($total, 2),
+            'currency'  => $currency,
             'breakdown' => $breakdown
         ];
     }

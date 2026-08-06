@@ -28,8 +28,12 @@ class TicketController extends Controller
         try {
             $this->ticketService->validateTicket($request->qr_hash, $request->user());
             return $this->successResponse(null, 'Ticket validated successfully');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        } catch (\InvalidArgumentException $e) {
+            return $this->errorResponse($e->getMessage(), 422);
         } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), $e->getCode() ?: 400);
+            return $this->errorResponse($e->getMessage(), 400);
         }
     }
 

@@ -26,6 +26,13 @@ class LockingService
     public function isLocked(int $eventId, int $seatId): bool
     {
         $lockKey = "lock:event:{$eventId}:seat:{$seatId}";
-        return Cache::has($lockKey);
+        // Attempt to get the lock for 0 seconds; if it fails the seat is already locked.
+        $lock = Cache::lock($lockKey, 600);
+        if ($lock->get()) {
+            // We got it — immediately release and report not locked
+            $lock->release();
+            return false;
+        }
+        return true;
     }
 }

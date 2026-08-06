@@ -42,7 +42,12 @@ class EventController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(5);
-        $validated['organization_id'] = $request->user()->organizations()->first()->id;
+
+        $organization = $request->user()->organizations()->first();
+        if (! $organization) {
+            return back()->withErrors(['organization' => 'You must belong to an organization to create events.']);
+        }
+        $validated['organization_id'] = $organization->id;
 
         Event::create($validated);
 

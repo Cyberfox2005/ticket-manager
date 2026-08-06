@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Modules\Shared\Infrastructure\Auditable;
 use App\Modules\Shared\Infrastructure\TenantScoped;
+use App\Models\Seat;
 
 class Ticket extends Model
 {
@@ -17,6 +18,7 @@ class Ticket extends Model
         'order_id',
         'ticket_type_id',
         'user_id',
+        'seat_id',
         'seat_reference',
         'qr_hash',
         'validated_at',
@@ -40,6 +42,11 @@ class Ticket extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function seat(): BelongsTo
+    {
+        return $this->belongsTo(Seat::class);
     }
 
     public function validator(): BelongsTo

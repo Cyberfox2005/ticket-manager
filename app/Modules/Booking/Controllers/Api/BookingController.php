@@ -42,4 +42,24 @@ class BookingController extends Controller
             return $this->errorResponse($e->getMessage(), 400);
         }
     }
+
+    public function quote(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'seat_id'  => 'required|exists:seats,id',
+        ]);
+
+        try {
+            $quote = $this->bookingService->getQuote(
+                (int) $request->event_id,
+                (int) $request->seat_id,
+                $request->user()
+            );
+
+            return $this->successResponse($quote);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 422);
+        }
+    }
 }

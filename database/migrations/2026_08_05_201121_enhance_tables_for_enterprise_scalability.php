@@ -33,7 +33,7 @@ return new class extends Migration
         // Add Multi-tenant and scalability indexes
         Schema::table('orders', function (Blueprint $table) {
             $table->index(['user_id', 'status']);
-            $table->jsonb('billing_details')->nullable(); // Using jsonb for Postgres readiness
+            $table->json('billing_details')->nullable();
         });
 
         Schema::table('tickets', function (Blueprint $table) {

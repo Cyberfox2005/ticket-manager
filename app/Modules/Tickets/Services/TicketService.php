@@ -81,16 +81,16 @@ class TicketService
         $ticket = $this->ticketRepository->findByQrHash($qrHash);
 
         if (! $ticket) {
-            throw new \Exception('Invalid Ticket', 404);
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Invalid Ticket');
         }
 
         if ($ticket->validated_at) {
-            throw new \Exception('Ticket already used at ' . $ticket->validated_at->toDateTimeString(), 422);
+            throw new \InvalidArgumentException('Ticket already used at ' . $ticket->validated_at->toDateTimeString());
         }
 
         $event = $ticket->order->event;
         if (Carbon::now()->isBefore($event->start_at->subHours(2))) {
-            throw new \Exception('Event has not started yet', 422);
+            throw new \InvalidArgumentException('Event has not started yet');
         }
 
         $updated = $this->ticketRepository->update($ticket->id, [
