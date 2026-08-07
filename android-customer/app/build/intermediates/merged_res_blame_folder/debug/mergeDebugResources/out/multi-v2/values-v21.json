@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.ticketflow.customer.app-mergeDebugResources-55:/values-v21/values-v21.xml",
+            "outputFile": "com.ticketflow.customer.app-mergeDebugResources-56:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "/home/benachi-abdelouaheb/.gradle/caches/transforms-4/2de8416f82cb1b20a32b70912f7b490d/transformed/core-1.13.1/res/values-v21/values-v21.xml",
+                    "source": "/home/benachi-abdelouaheb/.gradle/caches/transforms-4/e78373ce100a3d5b5825d749a500e3aa/transformed/core-1.13.1/res/values-v21/values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
