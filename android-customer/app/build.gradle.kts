@@ -60,8 +60,8 @@ dependencies {
     // Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content-negotiation)
-    implementation(libs.ktor.serialization.kotlinx-json)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -76,7 +76,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test-junit4)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test-manifest)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
